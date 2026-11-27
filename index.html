@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Grinch Crew | Grinch Party Visits in Elmhurst &amp; Lake Forest, IL</title>
 <meta name="description" content="Book the Grinch for your home, office or holiday party. Surprise visits, custom pranks and photos in Elmhurst, Lake Forest, Gurnee and nearby Illinois towns. Visits start at 15 minutes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,6 +72,25 @@
   .card p { margin: 0 0 .6em; color: var(--muted); }
   .card .note { font-size: 14px; font-weight: 700; color: var(--green-dark); }
 
+  /* Gallery */
+  .gallery { background: var(--green-deep); }
+  .gallery h2 { color: #fff; }
+  .gallery .lead { color: #cfe6c6; }
+  .photos { display: grid; gap: 14px; grid-template-columns: repeat(6, 1fr); }
+  .photos figure { margin: 0; border-radius: 16px; overflow: hidden; background: #0d2a0a; box-shadow: 0 6px 18px rgba(0,0,0,.3); }
+  .photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photos .p1 { grid-column: span 2; aspect-ratio: 4/5; }
+  .photos .p2 { grid-column: span 2; aspect-ratio: 4/5; }
+  .photos .p3 { grid-column: span 2; aspect-ratio: 4/5; }
+  .photos .p4 { grid-column: span 3; aspect-ratio: 2/1; }
+  .photos .p5 { grid-column: span 3; aspect-ratio: 2/1; }
+  .photos .p5 img { object-position: center 30%; }
+  @media (max-width: 700px) {
+    .photos { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .photos .p1, .photos .p2, .photos .p3, .photos .p5 { grid-column: span 1; aspect-ratio: 4/5; }
+    .photos .p4 { grid-column: span 2; aspect-ratio: 2/1; }
+  }
+
   /* Pricing */
   .pricing { background: #fff; }
   .price-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
@@ -82,6 +101,7 @@
   .price-card td { padding: 9px 0; border-bottom: 1px dashed var(--line); }
   .price-card td:last-child { text-align: right; font-weight: 800; font-size: 19px; color: var(--green-dark); }
   .price-card .big { font-family: "Luckiest Guy", sans-serif; font-size: 40px; color: var(--green-dark); margin: 6px 0; }
+  .price-card .btn.pay { display: block; text-align: center; margin-top: 14px; }
   .fine { max-width: 760px; margin: 30px auto 0; text-align: center; color: var(--muted); font-size: 15px; }
   .fine strong { color: var(--ink); }
 
@@ -106,6 +126,11 @@
   form.book .radios { display: flex; gap: 18px; padding-top: 6px; }
   form.book .radios label { font-weight: 600; display: flex; align-items: center; gap: 6px; }
   form.book .radios input { width: auto; }
+  form.book .consent label { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; font-size: 15px; background: #eef5ec; border-radius: 10px; padding: 12px 14px; cursor: pointer; }
+  form.book .consent input { width: 20px; height: 20px; flex: none; margin-top: 2px; }
+  form.book .consent small { color: var(--muted); font-weight: 400; }
+  .tu-consent { display: flex !important; gap: 8px; align-items: flex-start; font-weight: 600 !important; font-size: 13px !important; margin-top: 12px !important; cursor: pointer; }
+  .tu-consent input { width: 18px !important; height: 18px; flex: none; margin-top: 1px; }
   form.book .submit { text-align: center; }
   form.book .submit .btn { font-size: 20px; padding: 16px 40px; font-family: "Luckiest Guy", sans-serif; letter-spacing: 1px; }
   form.book .how { font-size: 14px; color: var(--muted); margin-top: 10px; }
@@ -131,6 +156,13 @@
   #tu-btn:hover { background: #348427; }
   #tu-panel { position: fixed; right: 20px; bottom: 84px; z-index: 9999; width: 320px; max-width: calc(100vw - 32px); background: #fff; color: var(--ink); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,.35); overflow: hidden; font-size: 15px; line-height: 1.4; display: none; }
   #tu-panel.open { display: block; }
+  /* Keep the Text Us button about an inch in from the corner so it never gets cut off */
+  #tu-btn { right: 96px; bottom: 96px; }
+  #tu-panel { right: 96px; bottom: 160px; max-height: calc(100vh - 180px); overflow-y: auto; }
+  @media (max-width: 600px) {
+    #tu-btn { right: calc(24px + env(safe-area-inset-right)); bottom: calc(40px + env(safe-area-inset-bottom)); }
+    #tu-panel { right: 16px; left: 16px; width: auto; max-width: none; bottom: calc(104px + env(safe-area-inset-bottom)); max-height: calc(100vh - 140px); }
+  }
   #tu-head { background: var(--green); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
   #tu-close { background: none; border: 0; color: #fff; font-size: 24px; cursor: pointer; line-height: 1; }
   #tu-body { padding: 12px 16px 16px; }
@@ -150,6 +182,7 @@
     <nav class="links">
       <a href="#story">Our Story</a>
       <a href="#services">Services</a>
+      <a href="#photos">Photos</a>
       <a href="#pricing">Pricing</a>
       <a href="#areas">Service Areas</a>
       <a href="#faq">FAQ</a>
@@ -171,7 +204,7 @@
     <div class="badges">
       <span>🎄 15 holiday seasons</span>
       <span>⏱ Visits from 15 minutes</span>
-      <span>💵 No deposit required</span>
+      <span>📅 Full payment saves your date</span>
     </div>
   </div>
 </section>
@@ -229,46 +262,56 @@
   </div>
 </section>
 
+<section class="gallery" id="photos">
+  <div class="wrap">
+    <h2>The Grinch in Action</h2>
+    <p class="lead">Parties, restaurants, shops and living rooms: nowhere is safe from a little Christmas mischief.</p>
+    <div class="photos">
+      <figure class="p1"><img src="images/grinch-restaurant-dancing.webp" alt="The Grinch dancing with cheering kids in a decorated restaurant" loading="lazy"></figure>
+      <figure class="p2"><img src="images/grinch-kids-party.webp" alt="Kids crowding around the Grinch for high-fives at a holiday party" loading="lazy"></figure>
+      <figure class="p3"><img src="images/grinch-gift-surprise.webp" alt="The Grinch holding a wrapped present while getting a hug in a shop" loading="lazy"></figure>
+      <figure class="p4"><img src="images/grinch-relaxing.png" alt="The Grinch lounging on a bench in his Santa suit" loading="lazy"></figure>
+      <figure class="p5"><img src="images/grinch-tattoo-shop.webp" alt="The Grinch posing with a tattoo artist wearing reindeer antlers" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
 <section class="pricing" id="pricing">
   <div class="wrap">
     <h2>2026 Holiday Pricing</h2>
-    <p class="lead">Book early and save. No deposit required.</p>
+    <p class="lead">One simple price for every date. Pay online and your date is saved.</p>
     <div class="price-grid">
+      <div class="price-card">
+        <span class="label">Quick Visit</span>
+        <h3>15 Minutes</h3>
+        <div class="big">$80</div>
+        <p>A fast front-door surprise, a few photos and a little mischief.</p>
+        <a href="https://buy.stripe.com/28EbIU1vv9D56ZGeiJ3Je00" class="btn pay" target="_blank" rel="noopener">BOOK &amp; PAY $80</a>
+      </div>
       <div class="price-card hot">
-        <span class="label">Early Season Special</span>
-        <h3>November 2026</h3>
-        <table>
-          <tr><td>15 Minutes</td><td>$35</td></tr>
-          <tr><td>30 Minutes</td><td>$65</td></tr>
-          <tr><td>45 Minutes</td><td>$95</td></tr>
-          <tr><td>60 Minutes</td><td>$125</td></tr>
-        </table>
+        <span class="label">Most Popular</span>
+        <h3>30 Minutes</h3>
+        <div class="big">$140</div>
+        <p>Time for photos, games and plenty of Grinch trouble with the whole family.</p>
+        <a href="https://buy.stripe.com/fZudR23DD02vabSa2t3Je01" class="btn pay" target="_blank" rel="noopener">BOOK &amp; PAY $140</a>
       </div>
       <div class="price-card">
-        <span class="label">Holiday Season</span>
-        <h3>December 1–17, 2026</h3>
-        <table>
-          <tr><td>15 Minutes</td><td>$45</td></tr>
-          <tr><td>30 Minutes</td><td>$50</td></tr>
-          <tr><td>45 Minutes</td><td>$130</td></tr>
-          <tr><td>60 Minutes</td><td>$165</td></tr>
-        </table>
-      </div>
-      <div class="price-card">
-        <span class="label">Christmas Week</span>
-        <h3>December 18–25, 2026</h3>
-        <p>Our busiest holiday dates. Contact us for special Christmas Week pricing and availability.</p>
-        <a href="sms:+18474449654" class="btn small">Text for pricing</a>
+        <span class="label">Full Party</span>
+        <h3>60 Minutes</h3>
+        <div class="big">$200</div>
+        <p>A full hour for parties, bigger groups and custom pranks.</p>
+        <a href="https://buy.stripe.com/4gM9AM3DD16z0BifmN3Je02" class="btn pay" target="_blank" rel="noopener">BOOK &amp; PAY $200</a>
       </div>
       <div class="price-card">
         <span class="label">Business</span>
         <h3>Corporate Events</h3>
         <div class="big">$250</div>
         <p>60-minute corporate appearance. Longer appearances, multiple performers, and custom corporate events are available by quote.</p>
+        <a href="https://buy.stripe.com/8x2eV60rrdTlfwc7Ul3Je03" class="btn pay" target="_blank" rel="noopener">BOOK &amp; PAY $250</a>
       </div>
     </div>
     <p class="fine">Travel fees may apply depending on the event location. Custom pranks and specialty requests may require additional charges.<br>
-      <strong>No deposit required. We accept Cash, Zelle, and Venmo.</strong> All bookings must be personally confirmed.</p>
+      <strong>No deposit. Full payment saves your date.</strong> Pay securely online, and we'll text you to confirm the details.</p>
   </div>
 </section>
 
@@ -307,11 +350,12 @@
 <section class="booking" id="book">
   <div class="wrap">
     <h2>Book Your Grinch</h2>
-    <p class="lead">Fill this out and tap the button. Your request is sent as a text message straight to us, and we'll personally confirm availability and pricing.</p>
+    <p class="lead">Fill this out and tap the button. Your request comes straight to our phone, and we'll personally confirm availability and pricing.</p>
 
     <form class="book" id="book-form" novalidate>
+      <input type="text" name="website" id="b-hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
       <div><label for="b-name">Full name <span class="req">*</span></label><input id="b-name" name="Name" required autocomplete="name"></div>
-      <div><label for="b-phone">Phone number <span class="req">*</span></label><input id="b-phone" name="Phone" type="tel" required autocomplete="tel"></div>
+      <div><label for="b-phone">Cell phone number <span class="req">*</span></label><input id="b-phone" name="Phone" type="tel" required autocomplete="tel"></div>
       <div class="full"><label for="b-email">Email address</label><input id="b-email" name="Email" type="email" autocomplete="email"></div>
       <div><label for="b-date">Requested date <span class="req">*</span></label><input id="b-date" name="Date" type="date" required min="2026-11-01" max="2026-12-31"></div>
       <div><label for="b-time">Requested arrival time <span class="req">*</span></label><input id="b-time" name="Arrival time" type="time" required></div>
@@ -329,7 +373,7 @@
         <label for="b-len">Appearance length <span class="req">*</span></label>
         <select id="b-len" name="Length" required>
           <option value="">Choose one…</option>
-          <option>15 minutes</option><option>30 minutes</option><option>45 minutes</option><option>60 minutes</option><option>Longer / not sure</option>
+          <option>15 minutes</option><option>30 minutes</option><option>60 minutes</option><option>Longer / not sure</option>
         </select>
       </div>
       <div><label for="b-kids">Approx. number of children</label><input id="b-kids" name="Children" inputmode="numeric"></div>
@@ -346,16 +390,19 @@
       <div class="full"><label for="b-act">Preferred activities or Grinch mischief</label><textarea id="b-act" name="Mischief" placeholder="Steal the presents? Crash dinner? Photos with the kids?"></textarea></div>
       <div class="full"><label for="b-spec">Special requests or instructions</label><textarea id="b-spec" name="Special requests"></textarea></div>
       <div class="full"><label for="b-care">Accessibility, sensory, pet, or other important considerations</label><textarea id="b-care" name="Considerations"></textarea></div>
+      <div class="full consent">
+        <label><input type="checkbox" id="b-consent" required> <span>Yes, it's OK to send text messages to my cell phone about this inquiry. <span class="req">*</span><br><small>Msg &amp; data rates may apply. Reply STOP anytime to opt out.</small></span></label>
+      </div>
       <div class="full submit">
         <button type="submit" class="btn">BOOK YOUR GRINCH</button>
-        <p class="how">This opens your phone's messaging app with your details filled in. Just hit send!</p>
+        <p class="how" id="book-how">We'll text you to confirm. Full payment saves your date.</p>
       </div>
     </form>
 
     <div id="book-done" role="status">
-      <h3>🎄 Almost there!</h3>
+      <h3>🎄 Request sent!</h3>
       <p><strong>Your Grinch inquiry has been received!</strong> We'll contact you to confirm availability, pricing, and all the mischievous details. Your booking is not confirmed until you hear directly from us.</p>
-      <p class="mobile-tip" style="color:var(--muted);font-size:15px">Didn't send the text? <a href="#" id="resend">Tap here to open it again.</a></p>
+      <p class="mobile-tip" style="display:none;color:var(--muted);font-size:15px">Didn't send the text? <a href="#" id="resend">Tap here to open it again.</a></p>
       <div class="desk" id="desk-box">
         <p style="margin-top:0"><strong>On a computer?</strong> Text these details to <a href="sms:+18474449654">847-444-9654</a> from your phone:</p>
         <pre id="desk-msg"></pre>
@@ -372,10 +419,10 @@
     <details><summary>Can the Grinch surprise someone?</summary><p>Absolutely! Surprise visits are one of our specialties. Just let us know what you have planned.</p></details>
     <details><summary>Does the Grinch entertain adults too?</summary><p>Of course! We love corporate parties, office surprises, and entertaining adults just as much as children.</p></details>
     <details><summary>Can we request a custom prank?</summary><p>Yes! Tell us your idea, and we'll discuss how to make it happen safely.</p></details>
-    <details><summary>Do you require a deposit?</summary><p>No deposit is required.</p></details>
-    <details><summary>What payment methods do you accept?</summary><p>Cash, Zelle, and Venmo.</p></details>
+    <details><summary>Do you require a deposit?</summary><p>No deposit. Your date is saved once your visit is paid in full. Pay online with the buttons in the <a href="#pricing">pricing section</a>.</p></details>
+    <details><summary>What payment methods do you accept?</summary><p>All major credit and debit cards through our secure online checkout.</p></details>
     <details><summary>Do you travel outside your listed towns?</summary><p>Our standard service area covers select locations in the towns listed above. Text us your address to discuss availability.</p></details>
-    <details><summary>How do I confirm my booking?</summary><p>Submit an inquiry or text us. We'll personally confirm your appointment.</p></details>
+    <details><summary>How do I confirm my booking?</summary><p>Pay online to save your date, or submit an inquiry or text us first. Either way, we'll personally confirm the details with you.</p></details>
   </div>
 </section>
 
@@ -385,7 +432,8 @@
     <p>Stealing Christmas for over 15 years!</p>
     <p>Call or text: <a href="sms:+18474449654">847-444-9654</a></p>
     <p>Serving the Elmhurst and Lake Forest / Gurnee areas of Illinois</p>
-    <p>Cash · Zelle · Venmo · No deposit required</p>
+    <p>Secure online payment · Full payment saves your date</p>
+    <p style="margin-top:18px;font-size:13px;opacity:.75">Website by <a href="https://archwayinternetmarketing.com" target="_blank" rel="noopener">Archway Internet Marketing</a> · archwayinternetmarketing.com</p>
   </div>
 </footer>
 
@@ -396,13 +444,16 @@
   <div id="tu-body">
     <label for="tu-name">Your name</label>
     <input id="tu-name" type="text" autocomplete="name">
+    <label for="tu-phone">Your cell phone number *</label>
+    <input id="tu-phone" type="tel" autocomplete="tel">
     <label for="tu-date">Party date (optional)</label>
     <input id="tu-date" type="text" placeholder="e.g. Dec 14, 3pm">
     <label for="tu-msg">Your question</label>
     <textarea id="tu-msg" placeholder="Hi! Is the Grinch available for…"></textarea>
-    <button id="tu-send" type="button">Send as a text</button>
+    <label class="tu-consent"><input type="checkbox" id="tu-consent"> <span>Yes, it's OK to text my cell phone about my question. * <small style="font-weight:400;color:#55634f">Msg &amp; data rates may apply. Reply STOP to opt out.</small></span></label>
+    <button id="tu-send" type="button">Send</button>
     <div id="tu-desk"></div>
-    <div id="tu-note">Opens your phone's messaging app. Standard text rates apply.</div>
+    <div id="tu-note">We'll text you back at the number you give us.</div>
   </div>
 </div>
 
@@ -438,10 +489,50 @@
   btn.addEventListener("click", function () { toggle(!panel.classList.contains("open")); });
   document.getElementById("tu-close").addEventListener("click", function () { toggle(false); });
 
+  function validCell(p) {
+    var d = (p || "").replace(/\D/g, "");
+    if (d.length === 11 && d.charAt(0) === "1") d = d.slice(1);
+    return d.length === 10;
+  }
+  function showDesk(msg) { desk.style.display = "block"; desk.textContent = msg; }
+
+  // Sends data to book.php on the server. Resolves true only if the server confirms it was delivered.
+  function postToServer(data) {
+    var fd = new FormData();
+    for (var k in data) fd.append(k, data[k] || "");
+    return fetch("book.php", { method: "POST", body: fd })
+      .then(function (r) { return r.ok ? r.json() : { ok: false }; })
+      .then(function (j) { return !!(j && j.ok); })
+      .catch(function () { return false; });
+  }
+
   document.getElementById("tu-send").addEventListener("click", function () {
-    var name = document.getElementById("tu-name").value.trim(),
-        date = document.getElementById("tu-date").value.trim(),
-        msg  = document.getElementById("tu-msg").value.trim();
+    var sendBtn = this,
+        name  = document.getElementById("tu-name").value.trim(),
+        phone = document.getElementById("tu-phone").value.trim(),
+        date  = document.getElementById("tu-date").value.trim(),
+        msg   = document.getElementById("tu-msg").value.trim();
+
+    var consent = document.getElementById("tu-consent").checked;
+    if (!name || !msg) { showDesk("Please add your name and question."); return; }
+    if (!validCell(phone)) { showDesk("Please enter a valid 10-digit cell phone number."); return; }
+    if (!consent) { showDesk("Please check the box saying it's OK to text you."); return; }
+    sendBtn.disabled = true; sendBtn.textContent = "Sending…";
+
+    postToServer({ type: "question", name: name, phone: phone, date: date, message: msg, consent: "yes" }).then(function (ok) {
+      sendBtn.disabled = false; sendBtn.textContent = "Send";
+      if (ok) {
+        desk.style.display = "block";
+        desk.innerHTML = "<strong>Got it! 💚</strong> We'll text you back at " + phone.replace(/</g, "") + " soon.";
+        document.getElementById("tu-msg").value = "";
+      } else {
+        textFallback(name, phone, date, msg);
+      }
+    });
+  });
+
+  // Backup if the server can't be reached: open the visitor's own texting app.
+  function textFallback(name, phone, date, msg) {
     var text = "Hi! (Grinch website)";
     if (name) text += " This is " + name + ".";
     if (date) text += " Party date: " + date + ".";
@@ -455,7 +546,7 @@
         '</a><br><button type="button" id="tu-copy" style="margin-top:8px;padding:6px 10px;border-radius:6px;border:1px solid #9bb894;background:#fff;cursor:pointer">Copy message</button>';
       document.getElementById("tu-copy").addEventListener("click", function () { copy(text, this); });
     }
-  });
+  }
 
   /* ---------- Booking form -> text message ---------- */
   var form = document.getElementById("book-form"),
@@ -475,6 +566,10 @@
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+    var phoneEl = document.getElementById("b-phone");
+    phoneEl.setCustomValidity(validCell(phoneEl.value) ? "" : "Please enter a valid 10-digit cell phone number.");
+    var consentEl = document.getElementById("b-consent");
+    consentEl.setCustomValidity(consentEl.checked ? "" : "Please check this box so we can text you about your booking.");
     var missing = form.querySelector(":invalid");
     if (missing) { missing.focus(); form.reportValidity(); return; }
 
@@ -498,17 +593,36 @@
     add("Considerations", f["b-care"].value);
     bookText = lines.join("\n");
 
-    form.style.display = "none";
-    done.style.display = "block";
-    done.scrollIntoView({ behavior: "smooth", block: "center" });
+    var submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true; submitBtn.textContent = "SENDING…";
 
-    if (isMobile) {
-      window.location.href = smsHref(bookText);
-    } else {
-      document.querySelector("#book-done .mobile-tip").style.display = "none";
-      document.getElementById("desk-msg").textContent = bookText;
-      document.getElementById("desk-box").style.display = "block";
-    }
+    postToServer({
+      type: "booking",
+      website: f["b-hp"].value,
+      name: f["b-name"].value, phone: f["b-phone"].value, email: f["b-email"].value,
+      date: fmtDate(f["b-date"].value), time: fmtTime(f["b-time"].value),
+      address: f["b-addr"].value, city: f["b-city"].value, zip: f["b-zip"].value,
+      event: f["b-type"].value, length: f["b-len"].value,
+      kids: f["b-kids"].value, adults: f["b-adults"].value, ages: f["b-ages"].value,
+      surprise: s ? s.value : "",
+      mischief: f["b-act"].value, requests: f["b-spec"].value, considerations: f["b-care"].value,
+      consent: "yes"
+    }).then(function (ok) {
+      submitBtn.disabled = false; submitBtn.textContent = "BOOK YOUR GRINCH";
+      form.style.display = "none";
+      done.style.display = "block";
+      done.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (ok) return; // delivered to the owner automatically
+
+      // Backup: server unreachable, so let the visitor text the details themselves.
+      if (isMobile) {
+        document.querySelector("#book-done .mobile-tip").style.display = "block";
+        window.location.href = smsHref(bookText);
+      } else {
+        document.getElementById("desk-msg").textContent = bookText;
+        document.getElementById("desk-box").style.display = "block";
+      }
+    });
   });
 
   document.getElementById("resend").addEventListener("click", function (e) {
