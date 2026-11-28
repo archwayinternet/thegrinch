@@ -1,0 +1,222 @@
+# Deploy the public site to cPanel.
+#
+# Merging to main runs this workflow immediately. Add the secrets below
+# before merging, or the job fails before it connects.
+#
+# Required secrets:
+#   SSH_PRIVATE_KEY  OpenSSH private key
+#   SSH_HOST         cp13.webserverbox.com
+#   SSH_USER         grinch
+#   SSH_TARGET_DIR   /home/grinch/public_html/
+# Optional secrets:
+#   SSH_PORT            default 22
+#   SSH_KEY_PASSPHRASE  unlocks SSH_PRIVATE_KEY via ssh-agent + SSH_ASKPASS
+#   SSH_KNOWN_HOSTS     host key lines; otherwise StrictHostKeyChecking=accept-new
+#
+# There is no ssh-keyscan step. The server firewall resets the connection
+# after a keyscan, so a scan would fail the deploy.
+#
+# rsync uses -avz only. It must never be given --delete: book.php, .htaccess,
+# and other server-only files are not in this repo and must stay in place.
+
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cpanel-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: rsync to public_html
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if required secrets are missing
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_TARGET_DIR: ${{ secrets.SSH_TARGET_DIR }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [ -n "${SSH_PRIVATE_KEY}" ] || missing+=("SSH_PRIVATE_KEY")
+          [ -n "${SSH_HOST}" ] || missing+=("SSH_HOST")
+          [ -n "${SSH_USER}" ] || missing+=("SSH_USER")
+          [ -n "${SSH_TARGET_DIR}" ] || missing+=("SSH_TARGET_DIR")
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Missing required GitHub Actions secrets: ${missing[*]}. Add them under Settings → Secrets and variables → Actions before merging. This site needs SSH_HOST=cp13.webserverbox.com, SSH_USER=grinch, SSH_TARGET_DIR=/home/grinch/public_html/."
+            exit 1
+          fi
+          case "${SSH_TARGET_DIR}" in
+            /*) ;;
+            *)
+              echo "::error::SSH_TARGET_DIR must be an absolute path (expected /home/grinch/public_html/)."
+              exit 1
+              ;;
+          esac
+          case "${SSH_TARGET_DIR}" in
+            *..*)
+              echo "::error::SSH_TARGET_DIR must not contain '..'."
+              exit 1
+              ;;
+          esac
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rsync site to cPanel
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_TARGET_DIR: ${{ secrets.SSH_TARGET_DIR }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SSH_PRIVATE_KEY}" ] || [ -z "${SSH_HOST}" ] || [ -z "${SSH_USER}" ] || [ -z "${SSH_TARGET_DIR}" ]; then
+            echo "::error::Missing required GitHub Actions secrets. Set SSH_PRIVATE_KEY, SSH_HOST, SSH_USER, and SSH_TARGET_DIR before deploying."
+            exit 1
+          fi
+
+          port="${SSH_PORT:-22}"
+          if ! printf '%s' "${port}" | grep -Eq '^[0-9]+$'; then
+            echo "::error::SSH_PORT must be a number from 1 to 65535."
+            exit 1
+          fi
+          if [ "${port}" -lt 1 ] || [ "${port}" -gt 65535 ]; then
+            echo "::error::SSH_PORT must be a number from 1 to 65535."
+            exit 1
+          fi
+
+          case "${SSH_TARGET_DIR}" in
+            /*) ;;
+            *)
+              echo "::error::SSH_TARGET_DIR must be an absolute path."
+              exit 1
+              ;;
+          esac
+
+          umask 077
+          mkdir -p "${HOME}/.ssh"
+          chmod 700 "${HOME}/.ssh"
+
+          key_file="${HOME}/.ssh/deploy_key"
+          printf '%s\n' "${SSH_PRIVATE_KEY}" | tr -d '\r' > "${key_file}"
+          chmod 600 "${key_file}"
+
+          if [ -n "${SSH_KNOWN_HOSTS:-}" ]; then
+            printf '%s\n' "${SSH_KNOWN_HOSTS}" | tr -d '\r' > "${HOME}/.ssh/known_hosts"
+            chmod 600 "${HOME}/.ssh/known_hosts"
+            strict_checking="yes"
+          else
+            : > "${HOME}/.ssh/known_hosts"
+            chmod 600 "${HOME}/.ssh/known_hosts"
+            strict_checking="accept-new"
+          fi
+
+          eval "$(ssh-agent -s)"
+          trap 'ssh-agent -k >/dev/null 2>&1 || true' EXIT
+
+          if [ -n "${SSH_KEY_PASSPHRASE:-}" ]; then
+            askpass="${HOME}/.ssh/askpass.sh"
+            cat > "${askpass}" << 'EOF'
+          #!/bin/sh
+          # Passphrase is read from the environment. Do not echo it.
+          printf '%s\n' "${SSH_KEY_PASSPHRASE}"
+          EOF
+            chmod 700 "${askpass}"
+            export SSH_ASKPASS="${askpass}"
+            export SSH_ASKPASS_REQUIRE=force
+            export DISPLAY="${DISPLAY:-:0}"
+            # timeout so a passphrase prompt cannot hang the job
+            if ! timeout 30s setsid -w ssh-add "${key_file}" </dev/null; then
+              echo "::error::Could not unlock SSH_PRIVATE_KEY. Check SSH_KEY_PASSPHRASE."
+              exit 1
+            fi
+          else
+            if ! timeout 30s ssh-add "${key_file}" </dev/null; then
+              echo "::error::ssh-add failed. If the private key is encrypted, set the SSH_KEY_PASSPHRASE secret."
+              exit 1
+            fi
+          fi
+
+          export DEPLOY_SSH_PORT="${port}"
+          export DEPLOY_STRICT_HOST_KEY_CHECKING="${strict_checking}"
+          export DEPLOY_KEY_FILE="${key_file}"
+          rsync_ssh="${HOME}/.ssh/rsync-ssh"
+          cat > "${rsync_ssh}" << 'EOF'
+          #!/bin/sh
+          # -i selects the agent identity. IdentitiesOnly would otherwise ignore it.
+          exec ssh \
+            -i "${DEPLOY_KEY_FILE}" \
+            -p "${DEPLOY_SSH_PORT}" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o "StrictHostKeyChecking=${DEPLOY_STRICT_HOST_KEY_CHECKING}" \
+            -o "UserKnownHostsFile=${HOME}/.ssh/known_hosts" \
+            "$@"
+          EOF
+          chmod 700 "${rsync_ssh}"
+
+          # Paths that must not be uploaded. .htaccess is excluded only when
+          # this repo does not contain one, so a real repo copy can still ship.
+          excludes=(
+            --exclude=.git/
+            --exclude=.github/
+            --exclude=.gitignore
+            --exclude='README*'
+            --exclude='*.md'
+            --exclude=.cpanel.yml
+            --exclude=.well-known/
+            --exclude=cgi-bin/
+            --exclude=.htpasswd
+            --exclude='*.log'
+            --exclude='*.zip'
+            --exclude=node_modules/
+            --exclude=.env
+            --exclude='.env.*'
+          )
+          if [ ! -e .htaccess ]; then
+            excludes+=(--exclude=.htaccess)
+          fi
+
+          target="${SSH_TARGET_DIR%/}/"
+          remote="${SSH_USER}@${SSH_HOST}:${target}"
+
+          # -avz only. Never add --delete.
+          attempt=1
+          while [ "${attempt}" -le 4 ]; do
+            case "${attempt}" in
+              1) delay=0 ;;
+              2) delay=15 ;;
+              3) delay=30 ;;
+              4) delay=60 ;;
+            esac
+            if [ "${delay}" -gt 0 ]; then
+              echo "Waiting ${delay}s before rsync attempt ${attempt} of 4"
+              sleep "${delay}"
+            else
+              echo "rsync attempt ${attempt} of 4"
+            fi
+            if rsync -avz "${excludes[@]}" -e "${rsync_ssh}" ./ "${remote}"; then
+              echo "Deploy succeeded on attempt ${attempt}"
+              exit 0
+            fi
+            echo "rsync attempt ${attempt} failed"
+            attempt=$((attempt + 1))
+          done
+
+          echo "::error::Deploy failed: rsync did not succeed after 4 attempts (waited 15s, 30s, then 60s between tries)."
+          exit 1
